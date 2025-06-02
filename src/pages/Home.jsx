@@ -1,33 +1,37 @@
 import React, { useState, useEffect } from 'react';
 
 const Home = () => {
+    const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
     const [projectName, setProjectName] = useState('');
     const [projectDescription, setProjectDescription] = useState('');
-    const [projects, setProjects] = useState([]);
+    const [allProjects, setAllProjects] = useState([]);
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [editingProject, setEditingProject] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-        const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
-        setProjects(savedProjects);
+        const user = JSON.parse(localStorage.getItem('user'));
+        setCurrentUser(user);
+        setAllProjects(savedProjects);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('projects', JSON.stringify(projects));
-    }, [projects]);
+        localStorage.setItem('projects', JSON.stringify(allProjects));
+    }, [allProjects]);
 
     const handleCreateProject = () => {
-        if (projectName.trim() === '') return;
-
+        if (projectName.trim() === '' || !currentUser) return;
+        
         if (editingProject) {
-            const updatedProjects = projects.map(project =>
-                project.id === editingProject.id
-                    ? { ...project, name: projectName, description: projectDescription }
+            const updatedProjects = allProjects.map(project => 
+                project.id === editingProject.id 
+                    ? { ...project, name: projectName, description: projectDescription } 
                     : project
             );
-            setProjects(updatedProjects);
+            setAllProjects(updatedProjects);
             setEditingProject(null);
         } else {
             const newProject = {
@@ -35,11 +39,13 @@ const Home = () => {
                 name: projectName,
                 description: projectDescription,
                 status: 'in progress',
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                ownerId: currentUser.id,
+                ownerUsername: currentUser.username
             };
-            setProjects([...projects, newProject]);
+            setAllProjects([...allProjects, newProject]);
         }
-
+        
         resetForm();
         document.getElementById('projectModal').close();
     };
@@ -52,12 +58,12 @@ const Home = () => {
     };
 
     const handleDeleteProject = (id) => {
-        setProjects(projects.filter(project => project.id !== id));
+        setAllProjects(allProjects.filter(project => project.id !== id));
         setDeleteConfirm(null);
     };
 
     const updateProjectStatus = (id, newStatus) => {
-        setProjects(projects.map(project =>
+        setAllProjects(allProjects.map(project => 
             project.id === id ? { ...project, status: newStatus } : project
         ));
     };
@@ -67,15 +73,19 @@ const Home = () => {
         setProjectDescription('');
     };
 
-    const filteredProjects = projects.filter(project => {
+    // Filter projects for current user only
+    const userProjects = allProjects.filter(project => project.ownerId === currentUser?.id);
+
+    // Apply additional filters and search
+    const filteredProjects = userProjects.filter(project => {
         const matchesFilter = filter === 'all' || project.status === filter;
-        const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            project.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            project.description.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
     const getStatusColor = (status) => {
-        switch (status) {
+        switch(status) {
             case 'in progress': return 'bg-accent';
             case 'on hold': return 'bg-warning';
             case 'completed': return 'bg-success';
@@ -88,6 +98,9 @@ const Home = () => {
             <div className='w-full h-full flex'>
                 <div className='w-48 p-4 bg-base-200'>
                     <h2 className='font-bold text-lg mb-4'>Menu</h2>
+                    <div className='mb-4'>
+                        <p className='font-semibold'>Welcome, {currentUser?.username || 'User'}</p>
+                    </div>
                     <ul className='menu'>
                         <li><button onClick={() => setFilter('all')}>All Projects</button></li>
                         <li><button onClick={() => setFilter('in progress')}>In Progress</button></li>
@@ -95,13 +108,14 @@ const Home = () => {
                         <li><button onClick={() => setFilter('completed')}>Completed</button></li>
                     </ul>
                 </div>
-
+                
                 <div className="divider divider-horizontal"></div>
-
+                
                 <div className='w-full space-y-7 p-10'>
                     <div className='flex justify-evenly'>
                         <div
                             onClick={() => {
+                                if (!currentUser) return;
                                 resetForm();
                                 setEditingProject(null);
                                 document.getElementById('projectModal').showModal();
@@ -110,7 +124,7 @@ const Home = () => {
                         >
                             {editingProject ? 'Edit Project' : 'Create Project'}
                         </div>
-                        <div
+                        <div 
                             onClick={() => setFilter('in progress')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'in progress' ? 'bg-accent' : 'bg-base-300 hover:bg-accent'}`}
                         >
@@ -118,20 +132,20 @@ const Home = () => {
                         </div>
                     </div>
                     <div className='flex justify-evenly'>
-                        <div
+                        <div 
                             onClick={() => setFilter('on hold')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'on hold' ? 'bg-warning' : 'bg-base-300 hover:bg-warning'}`}
                         >
                             Projects On Hold
                         </div>
-                        <div
+                        <div 
                             onClick={() => setFilter('completed')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-success' : 'bg-base-300 hover:bg-success'}`}
                         >
                             Completed Projects
                         </div>
                     </div>
-
+                    
                     <div className='flex justify-between items-center'>
                         <h2 className='text-xl font-bold'>Project List</h2>
                         <div className='form-control'>
@@ -144,20 +158,23 @@ const Home = () => {
                             />
                         </div>
                     </div>
-
+                    
                     <div className='bg-base-200 w-full h-3/5 overflow-y-auto rounded-2xl p-4'>
                         {filteredProjects.length === 0 ? (
                             <div className='text-center py-10'>No projects found</div>
                         ) : (
                             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                                 {filteredProjects.map(project => (
-                                    <div
-                                        key={project.id}
+                                    <div 
+                                        key={project.id} 
                                         className={`card ${getStatusColor(project.status)} text-base-content shadow-xl hover:shadow-2xl transition-shadow`}
                                     >
                                         <div className='card-body'>
                                             <div className='flex justify-between items-start'>
-                                                <h3 className='card-title'>{project.name}</h3>
+                                                <div>
+                                                    <h3 className='card-title'>{project.name}</h3>
+                                                    <p className='text-sm'>Owner: {project.ownerUsername}</p>
+                                                </div>
                                                 <div className='dropdown dropdown-end'>
                                                     <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -175,7 +192,7 @@ const Home = () => {
                                             </div>
                                             <p>{project.description}</p>
                                             <div className='flex justify-between items-center mt-4'>
-                                                <select
+                                                <select 
                                                     className='select select-bordered select-sm'
                                                     value={project.status}
                                                     onChange={(e) => updateProjectStatus(project.id, e.target.value)}
@@ -203,28 +220,28 @@ const Home = () => {
                         {editingProject ? 'Edit Project' : 'Create New Project'}
                     </h3>
                     <div className='space-y-5'>
-                        <input
-                            type="text"
-                            placeholder="Project name"
-                            className="input w-full"
+                        <input 
+                            type="text" 
+                            placeholder="Project name" 
+                            className="input w-full" 
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                         />
-                        <textarea
-                            className="textarea w-full"
+                        <textarea 
+                            className="textarea w-full" 
                             placeholder="Description"
                             value={projectDescription}
                             onChange={(e) => setProjectDescription(e.target.value)}
                         ></textarea>
                     </div>
                     <div className='w-full flex justify-end gap-2 p-4'>
-                        <button
+                        <button 
                             className='btn btn-ghost'
                             onClick={() => document.getElementById('projectModal').close()}
                         >
                             Cancel
                         </button>
-                        <button
+                        <button 
                             className='btn btn-primary'
                             onClick={handleCreateProject}
                         >
