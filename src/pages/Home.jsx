@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Home = () => {
     const navigate = useNavigate();
     const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
+    const allUsers = JSON.parse(localStorage.getItem('allUser')) || [];
     const [projectName, setProjectName] = useState('');
     const [projectDescription, setProjectDescription] = useState('');
     const [allProjects, setAllProjects] = useState([]);
@@ -12,12 +13,14 @@ const Home = () => {
     const [editingProject, setEditingProject] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [currentShareProject, setCurrentShareProject] = useState(null);
+    const [selectedUserToShare, setSelectedUserToShare] = useState('');
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
         setCurrentUser(user);
         setAllProjects(savedProjects);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -43,7 +46,8 @@ const Home = () => {
                 status: 'in progress',
                 createdAt: new Date().toISOString(),
                 ownerId: currentUser.id,
-                ownerUsername: currentUser.username
+                ownerUsername: currentUser.username,
+                sharedWith: []
             };
             setAllProjects([...allProjects, newProject]);
         }
@@ -64,6 +68,46 @@ const Home = () => {
         setDeleteConfirm(null);
     };
 
+    const handleShareProject = (project) => {
+        setCurrentShareProject(project);
+        setShareModalOpen(true);
+    };
+
+    const confirmShareProject = () => {
+        if (!selectedUserToShare || !currentShareProject) return;
+        
+        const updatedProjects = allProjects.map(project => {
+            if (project.id === currentShareProject.id) {
+                if (!project.sharedWith.includes(selectedUserToShare) && 
+                    project.ownerId !== selectedUserToShare) {
+                    return {
+                        ...project,
+                        sharedWith: [...project.sharedWith, selectedUserToShare]
+                    };
+                }
+            }
+            return project;
+        });
+
+        setAllProjects(updatedProjects);
+        setShareModalOpen(false);
+        setSelectedUserToShare('');
+        setCurrentShareProject(null);
+    };
+
+    const removeSharedUser = (projectId, userId) => {
+        const updatedProjects = allProjects.map(project => {
+            if (project.id === projectId) {
+                return {
+                    ...project,
+                    sharedWith: project.sharedWith.filter(id => id !== userId)
+                };
+            }
+            return project;
+        });
+        setAllProjects(updatedProjects);
+    };
+
     const updateProjectStatus = (id, newStatus) => {
         setAllProjects(allProjects.map(project =>
             project.id === id ? { ...project, status: newStatus } : project
@@ -75,10 +119,11 @@ const Home = () => {
         setProjectDescription('');
     };
 
-    // Filter projects for current user only
-    const userProjects = allProjects.filter(project => project.ownerId === currentUser?.id);
+    const userProjects = allProjects.filter(project => 
+        project.ownerId === currentUser?.id || 
+        (project.sharedWith && project.sharedWith.includes(currentUser?.id))
+    );
 
-    // Apply additional filters and search
     const filteredProjects = userProjects.filter(project => {
         const matchesFilter = filter === 'all' || project.status === filter;
         const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,6 +139,7 @@ const Home = () => {
             default: return 'bg-base-300';
         }
     };
+
     const goToProject = (id) => {
         navigate(`/project/${id}`);
     };
@@ -101,21 +147,6 @@ const Home = () => {
     return (
         <div className='w-screen h-screen pt-20'>
             <div className='w-full h-full flex'>
-                <div className='w-48 p-4 bg-base-200'>
-                    <h2 className='font-bold text-lg mb-4'>Menu</h2>
-                    <div className='mb-4'>
-                        <p className='font-semibold'>Welcome, {currentUser?.username || 'User'}</p>
-                    </div>
-                    <ul className='menu'>
-                        <li><button onClick={() => setFilter('all')}>All Projects</button></li>
-                        <li><button onClick={() => setFilter('in progress')}>In Progress</button></li>
-                        <li><button onClick={() => setFilter('on hold')}>On Hold</button></li>
-                        <li><button onClick={() => setFilter('completed')}>Completed</button></li>
-                    </ul>
-                </div>
-
-                <div className="divider divider-horizontal"></div>
-
                 <div className='w-full space-y-7 p-10'>
                     <div className='flex justify-evenly'>
                         <div
@@ -172,13 +203,16 @@ const Home = () => {
                                 {filteredProjects.map(project => (
                                     <div
                                         key={project.id}
-                                        onClick={()=>goToProject(project.id)}
                                         className={`card ${getStatusColor(project.status)} text-base-content shadow-xl hover:shadow-2xl transition-shadow`}
                                     >
-                                        <div className='card-body'>
+                                        <div className='card-body relative'>
+                                            <div className='absolute top-0 left-0 w-full h-full' onClick={()=>goToProject(project.id)}></div>
                                             <div className='flex justify-between items-start'>
                                                 <div>
                                                     <h3 className='card-title'>{project.name}</h3>
+                                                    {project.ownerId !== currentUser?.id && (
+                                                        <span className='text-xs opacity-70'>Shared by: {project.ownerUsername}</span>
+                                                    )}
                                                 </div>
                                                 <div className='dropdown dropdown-end'>
                                                     <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
@@ -187,11 +221,16 @@ const Home = () => {
                                                         </svg>
                                                     </div>
                                                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                                        <li><button onClick={() => handleEditProject(project)}>Edit</button></li>
-                                                        <li><button onClick={() => setDeleteConfirm(project.id)}>Delete</button></li>
-                                                        <li><button onClick={() => updateProjectStatus(project.id, 'in progress')}>Mark "In Progress"</button></li>
-                                                        <li><button onClick={() => updateProjectStatus(project.id, 'on hold')}>Mark "On Hold"</button></li>
-                                                        <li><button onClick={() => updateProjectStatus(project.id, 'completed')}>Mark "Completed"</button></li>
+                                                        <li><button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }}>Edit</button></li>
+                                                        <li><button onClick={(e) => { e.stopPropagation(); handleShareProject(project); }}>Share</button></li>
+                                                        {project.ownerId === currentUser?.id && (
+                                                            <>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(project.id); }}>Delete</button></li>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'in progress'); }}>Mark "In Progress"</button></li>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'on hold'); }}>Mark "On Hold"</button></li>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'completed'); }}>Mark "Completed"</button></li>
+                                                            </>
+                                                        )}
                                                     </ul>
                                                 </div>
                                             </div>
@@ -268,6 +307,67 @@ const Home = () => {
                             <button className="btn" onClick={() => setDeleteConfirm(null)}>Cancel</button>
                             <button className="btn btn-error" onClick={() => handleDeleteProject(deleteConfirm)}>
                                 Delete
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+            )}
+
+            {shareModalOpen && (
+                <dialog open className="modal modal-bottom sm:modal-middle">
+                    <div className="modal-box">
+                        <h3 className="font-bold text-lg">Share Project</h3>
+                        <p className="py-4">Share "{currentShareProject?.name}" with:</p>
+                        
+                        <select 
+                            className="select select-bordered w-full"
+                            value={selectedUserToShare}
+                            onChange={(e) => setSelectedUserToShare(e.target.value)}
+                        >
+                            <option value="">Select a user</option>
+                            {allUsers
+                                .filter(user => 
+                                    user.id !== currentUser?.id && 
+                                    !currentShareProject?.sharedWith?.includes(user.id)
+                                )
+                                .map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.username}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                        
+                        {currentShareProject?.sharedWith?.length > 0 && (
+                            <div className="mt-4">
+                                <h4 className="font-bold">Currently shared with:</h4>
+                                <ul>
+                                    {currentShareProject.sharedWith.map(userId => {
+                                        const user = allUsers.find(u => u.id === userId);
+                                        return (
+                                            <li key={userId} className="flex justify-between items-center py-1">
+                                                {user?.username || userId}
+                                                <button 
+                                                    className="btn btn-xs btn-error"
+                                                    onClick={() => removeSharedUser(currentShareProject.id, userId)}
+                                                >
+                                                    Remove
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )}
+                        
+                        <div className="modal-action">
+                            <button className="btn" onClick={() => setShareModalOpen(false)}>Cancel</button>
+                            <button 
+                                className="btn btn-primary" 
+                                onClick={confirmShareProject}
+                                disabled={!selectedUserToShare}
+                            >
+                                Share
                             </button>
                         </div>
                     </div>
