@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { loginUser } from './../services/api'
+import { loginUser, allUser } from './../services/api'
 
 const Login = () => {
     const [username, setUsername] = useState('')
@@ -12,7 +12,9 @@ const Login = () => {
         e.preventDefault()
         try {
             const user = await loginUser({ username, password })
+            const users = await allUser()
             localStorage.setItem('user', JSON.stringify(user))
+            localStorage.setItem('allUser', JSON.stringify(users))
             navigate('/')
         } catch (err) {
             setError(err.message)

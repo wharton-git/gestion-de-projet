@@ -21,3 +21,8 @@ export const loginUser = async ({ username, password }) => {
     if (users.length === 0) throw new Error('Identifiants incorrects')
     return users[0]
 }
+
+export const allUser = async () => {
+    const users = await fetch(`${API_URL}/users`)
+    return users.json()
+}
