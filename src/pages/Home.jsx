@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+    const navigate = useNavigate();
     const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
     const [projectName, setProjectName] = useState('');
     const [projectDescription, setProjectDescription] = useState('');
@@ -15,7 +17,7 @@ const Home = () => {
         const user = JSON.parse(localStorage.getItem('user'));
         setCurrentUser(user);
         setAllProjects(savedProjects);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -24,11 +26,11 @@ const Home = () => {
 
     const handleCreateProject = () => {
         if (projectName.trim() === '' || !currentUser) return;
-        
+
         if (editingProject) {
-            const updatedProjects = allProjects.map(project => 
-                project.id === editingProject.id 
-                    ? { ...project, name: projectName, description: projectDescription } 
+            const updatedProjects = allProjects.map(project =>
+                project.id === editingProject.id
+                    ? { ...project, name: projectName, description: projectDescription }
                     : project
             );
             setAllProjects(updatedProjects);
@@ -45,7 +47,7 @@ const Home = () => {
             };
             setAllProjects([...allProjects, newProject]);
         }
-        
+
         resetForm();
         document.getElementById('projectModal').close();
     };
@@ -63,7 +65,7 @@ const Home = () => {
     };
 
     const updateProjectStatus = (id, newStatus) => {
-        setAllProjects(allProjects.map(project => 
+        setAllProjects(allProjects.map(project =>
             project.id === id ? { ...project, status: newStatus } : project
         ));
     };
@@ -79,18 +81,21 @@ const Home = () => {
     // Apply additional filters and search
     const filteredProjects = userProjects.filter(project => {
         const matchesFilter = filter === 'all' || project.status === filter;
-        const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            project.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            project.description.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
     const getStatusColor = (status) => {
-        switch(status) {
+        switch (status) {
             case 'in progress': return 'bg-accent';
             case 'on hold': return 'bg-warning';
             case 'completed': return 'bg-success';
             default: return 'bg-base-300';
         }
+    };
+    const goToProject = (id) => {
+        navigate(`/project/${id}`);
     };
 
     return (
@@ -108,9 +113,9 @@ const Home = () => {
                         <li><button onClick={() => setFilter('completed')}>Completed</button></li>
                     </ul>
                 </div>
-                
+
                 <div className="divider divider-horizontal"></div>
-                
+
                 <div className='w-full space-y-7 p-10'>
                     <div className='flex justify-evenly'>
                         <div
@@ -124,7 +129,7 @@ const Home = () => {
                         >
                             {editingProject ? 'Edit Project' : 'Create Project'}
                         </div>
-                        <div 
+                        <div
                             onClick={() => setFilter('in progress')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'in progress' ? 'bg-accent' : 'bg-base-300 hover:bg-accent'}`}
                         >
@@ -132,20 +137,20 @@ const Home = () => {
                         </div>
                     </div>
                     <div className='flex justify-evenly'>
-                        <div 
+                        <div
                             onClick={() => setFilter('on hold')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'on hold' ? 'bg-warning' : 'bg-base-300 hover:bg-warning'}`}
                         >
                             Projects On Hold
                         </div>
-                        <div 
+                        <div
                             onClick={() => setFilter('completed')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-success' : 'bg-base-300 hover:bg-success'}`}
                         >
                             Completed Projects
                         </div>
                     </div>
-                    
+
                     <div className='flex justify-between items-center'>
                         <h2 className='text-xl font-bold'>Project List</h2>
                         <div className='form-control'>
@@ -158,22 +163,22 @@ const Home = () => {
                             />
                         </div>
                     </div>
-                    
+
                     <div className='bg-base-200 w-full h-3/5 overflow-y-auto rounded-2xl p-4'>
                         {filteredProjects.length === 0 ? (
                             <div className='text-center py-10'>No projects found</div>
                         ) : (
                             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                                 {filteredProjects.map(project => (
-                                    <div 
-                                        key={project.id} 
+                                    <div
+                                        key={project.id}
+                                        onClick={()=>goToProject(project.id)}
                                         className={`card ${getStatusColor(project.status)} text-base-content shadow-xl hover:shadow-2xl transition-shadow`}
                                     >
                                         <div className='card-body'>
                                             <div className='flex justify-between items-start'>
                                                 <div>
                                                     <h3 className='card-title'>{project.name}</h3>
-                                                    <p className='text-sm'>Owner: {project.ownerUsername}</p>
                                                 </div>
                                                 <div className='dropdown dropdown-end'>
                                                     <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
@@ -192,7 +197,7 @@ const Home = () => {
                                             </div>
                                             <p>{project.description}</p>
                                             <div className='flex justify-between items-center mt-4'>
-                                                <select 
+                                                <select
                                                     className='select select-bordered select-sm'
                                                     value={project.status}
                                                     onChange={(e) => updateProjectStatus(project.id, e.target.value)}
@@ -220,28 +225,28 @@ const Home = () => {
                         {editingProject ? 'Edit Project' : 'Create New Project'}
                     </h3>
                     <div className='space-y-5'>
-                        <input 
-                            type="text" 
-                            placeholder="Project name" 
-                            className="input w-full" 
+                        <input
+                            type="text"
+                            placeholder="Project name"
+                            className="input w-full"
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                         />
-                        <textarea 
-                            className="textarea w-full" 
+                        <textarea
+                            className="textarea w-full"
                             placeholder="Description"
                             value={projectDescription}
                             onChange={(e) => setProjectDescription(e.target.value)}
                         ></textarea>
                     </div>
                     <div className='w-full flex justify-end gap-2 p-4'>
-                        <button 
+                        <button
                             className='btn btn-ghost'
                             onClick={() => document.getElementById('projectModal').close()}
                         >
                             Cancel
                         </button>
-                        <button 
+                        <button
                             className='btn btn-primary'
                             onClick={handleCreateProject}
                         >

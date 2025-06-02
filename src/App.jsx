@@ -4,6 +4,7 @@ import Navbar from './components/UI/Navbar'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import Register from './pages/Register'
+import ProjectsDetails from './pages/ProjectsDetails'
 
 function App() {
 
@@ -18,6 +19,15 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:id"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <ProjectsDetails />
             </ProtectedRoute>
           }
         />
