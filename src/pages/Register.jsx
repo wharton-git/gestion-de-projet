@@ -1,19 +1,18 @@
 import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { loginUser } from './../services/api'
+import { useNavigate } from 'react-router-dom'
+import { registerUser } from './../services/api'
 
-const Login = () => {
+const Register = () => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault()
         try {
-            const user = await loginUser({ username, password })
-            localStorage.setItem('user', JSON.stringify(user))
-            navigate('/')
+            await registerUser({ username, password })
+            navigate('/login')
         } catch (err) {
             setError(err.message)
         }
@@ -21,8 +20,8 @@ const Login = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-base-200">
-            <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md w-96 space-y-4">
-                <h2 className="text-xl font-bold">Connexion</h2>
+            <form onSubmit={handleRegister} className="bg-white p-6 rounded shadow-md w-96 space-y-4">
+                <h2 className="text-xl font-bold">Créer un compte</h2>
                 {error && <p className="text-red-500">{error}</p>}
                 <input
                     type="text"
@@ -40,13 +39,10 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <button className="btn btn-primary w-full">Se connecter</button>
-                <Link to="/register" className="text-sm text-blue-500 hover:underline block text-center">
-                    Créer un compte
-                </Link>
+                <button className="btn btn-primary w-full">S’inscrire</button>
             </form>
         </div>
     )
 }
 
-export default Login
+export default Register
