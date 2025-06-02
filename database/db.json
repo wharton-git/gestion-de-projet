@@ -1,4 +1,18 @@
 {
-    "users": [],
-    "projects": []
+  "users": [
+    {
+      "id": "a200",
+      "username": "Wharton",
+      "password": "xeon"
+    }
+  ],
+  "projects": [
+    {
+      "id": "5540",
+      "title": "Test",
+      "description": "EEE",
+      "status": "en cours",
+      "ownerId": "a200"
+    }
+  ]
 }
