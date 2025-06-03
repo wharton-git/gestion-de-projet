@@ -19,6 +19,7 @@ const ProjectsDetails = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
+    const [expandedTaskId, setExpandedTaskId] = useState(null); // corrigé
 
     const project = projects.find(p => p.id === parseInt(id));
     const projectUsers = [
@@ -30,9 +31,8 @@ const ProjectsDetails = () => {
     ];
 
     useEffect(() => {
-        
         setTasks(savedTasks || []);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     useEffect(() => {
@@ -128,10 +128,14 @@ const ProjectsDetails = () => {
         }
     };
 
+    const toggleExpand = (taskId) => {
+        setExpandedTaskId(prev => (prev === taskId ? null : taskId));
+    };
+
     if (!project) return <div className="w-screen h-screen pt-20 flex justify-center items-center">Project not found</div>;
 
     return (
-        <div className='w-screen h-screen pt-20 p-10'>
+        <div className='w-screen h-screen p-10'>
             <div className='flex justify-between items-center mb-6'>
                 <h1 className='text-2xl font-bold'>{project.name}</h1>
                 <button
@@ -170,70 +174,77 @@ const ProjectsDetails = () => {
                 </select>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className='space-x-3 space-y-3 text-center bg-base-200 p-2 rounded-2xl h-3/4 overflow-y-scroll'>
                 {filteredTasks.length === 0 ? (
                     <div className='col-span-full text-center py-10'>No tasks found</div>
                 ) : (
-                    filteredTasks.map(task => (
-                        <div key={task.id} className={`card ${getStatusColor(task.status)} shadow-xl`}>
-                            <div className='card-body'>
-                                <div className='flex justify-between items-start'>
-                                    <div>
+                    filteredTasks.map(task => {
+                        const isExpanded = expandedTaskId === task.id;
+                        return (
+                            <div key={task.id} className={`${getStatusColor(task.status)} shadow-xl relative inline-block align-top w-1/5 box-border rounded-2xl transition-all duration-300`}>
+                                <div
+                                    onClick={() => toggleExpand(task.id)}
+                                    className={`cursor-pointer p-4 ${isExpanded ? "h-96" : "h-20 "} max-h-56 overflow-hidden transition-all`}
+                                >
+                                    <div className="font-semibold">
                                         <h3 className='card-title'>{task.title}</h3>
-                                        {task.status === 'in progress' && (
-                                            <span className={`badge ${getPriorityColor(task.priority)}`}>
-                                                {task.priority}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className='dropdown dropdown-end'>
-                                        <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                            </svg>
-                                        </div>
-                                        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                            <li><button onClick={() => handleEditTask(task)}>Edit</button></li>
-                                            <li><button onClick={() => handleDeleteTask(task.id)}>Delete</button></li>
-                                            <li><button onClick={() => updateTaskStatus(task.id, 'in progress')}>Mark "In Progress"</button></li>
-                                            <li><button onClick={() => updateTaskStatus(task.id, 'on hold')}>Mark "On Hold"</button></li>
-                                            <li><button onClick={() => updateTaskStatus(task.id, 'completed')}>Mark "Completed"</button></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <p>{task.description}</p>
-
-                                <div className='mt-4'>
-                                    <h4 className='font-bold text-sm mb-1'>Assigned to:</h4>
-                                    <div className='flex flex-wrap gap-1'>
-                                        {task.assignedTo.map(userId => {
-                                            const user = projectUsers.find(u => u.id === userId);
-                                            return (
-                                                <span key={userId} className='badge badge-outline'>
-                                                    {user?.username || userId}
+                                        <div className='space-x-4'>
+                                            {task.status === 'in progress' && (
+                                                <span className={`badge ${getPriorityColor(task.priority)}`}>
+                                                    {task.priority}
                                                 </span>
-                                            );
-                                        })}
+                                            )}
+                                            <span className={`badge ${getPriorityColor(task.status)}`}>
+                                                {task.status}
+                                            </span>
+                                        </div>
                                     </div>
+
+                                    {isExpanded && (
+                                        <div className="text-sm mt-4">
+                                            <p>{task.description}</p>
+
+                                            <div className='mt-4'>
+                                                <h4 className='font-bold text-sm mb-1'>Assigned to:</h4>
+                                                <div className='flex flex-wrap gap-1'>
+                                                    {task.assignedTo.map(userId => {
+                                                        const user = projectUsers.find(u => u.id === userId);
+                                                        return (
+                                                            <span key={userId} className='badge badge-outline'>
+                                                                {user?.username || userId}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            <div className='flex justify-between items-center mt-4'>
+
+                                                <span className='text-sm opacity-70'>
+                                                    {new Date(task.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className='flex justify-between items-center mt-4'>
-                                    <select
-                                        className='select select-bordered select-sm'
-                                        value={task.status}
-                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                    >
-                                        <option value='in progress'>In Progress</option>
-                                        <option value='on hold'>On Hold</option>
-                                        <option value='completed'>Completed</option>
-                                    </select>
-                                    <span className='text-sm opacity-70'>
-                                        {new Date(task.createdAt).toLocaleDateString()}
-                                    </span>
+                                <div className='absolute top-0 right-0 dropdown dropdown-end p-2'>
+                                    <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                        </svg>
+                                    </div>
+                                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                        <li><button onClick={() => handleEditTask(task)}>Edit</button></li>
+                                        <li><button onClick={() => handleDeleteTask(task.id)}>Delete</button></li>
+                                        <li><button onClick={() => updateTaskStatus(task.id, 'in progress')}>Mark "In Progress"</button></li>
+                                        <li><button onClick={() => updateTaskStatus(task.id, 'on hold')}>Mark "On Hold"</button></li>
+                                        <li><button onClick={() => updateTaskStatus(task.id, 'completed')}>Mark "Completed"</button></li>
+                                    </ul>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 

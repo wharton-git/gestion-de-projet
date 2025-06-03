@@ -36,3 +36,7 @@
   --depth: 0;
   --noise: 0;
 }
+
+.collapse-title {
+  padding-inline-end: 0;
+}

@@ -75,10 +75,10 @@ const Home = () => {
 
     const confirmShareProject = () => {
         if (!selectedUserToShare || !currentShareProject) return;
-        
+
         const updatedProjects = allProjects.map(project => {
             if (project.id === currentShareProject.id) {
-                if (!project.sharedWith.includes(selectedUserToShare) && 
+                if (!project.sharedWith.includes(selectedUserToShare) &&
                     project.ownerId !== selectedUserToShare) {
                     return {
                         ...project,
@@ -119,8 +119,8 @@ const Home = () => {
         setProjectDescription('');
     };
 
-    const userProjects = allProjects.filter(project => 
-        project.ownerId === currentUser?.id || 
+    const userProjects = allProjects.filter(project =>
+        project.ownerId === currentUser?.id ||
         (project.sharedWith && project.sharedWith.includes(currentUser?.id))
     );
 
@@ -145,10 +145,10 @@ const Home = () => {
     };
 
     return (
-        <div className='w-screen h-screen pt-20'>
+        <div className='w-screen h-screen pt-15'>
             <div className='w-full h-full flex'>
                 <div className='w-full space-y-7 p-10'>
-                    <div className='flex justify-evenly'>
+                    <div className='flex gap-4 justify-evenly'>
                         <div
                             onClick={() => {
                                 if (!currentUser) return;
@@ -166,8 +166,6 @@ const Home = () => {
                         >
                             Projects in Progress
                         </div>
-                    </div>
-                    <div className='flex justify-evenly'>
                         <div
                             onClick={() => setFilter('on hold')}
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'on hold' ? 'bg-warning' : 'bg-base-300 hover:bg-warning'}`}
@@ -179,6 +177,12 @@ const Home = () => {
                             className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-success' : 'bg-base-300 hover:bg-success'}`}
                         >
                             Completed Projects
+                        </div>
+                        <div
+                            onClick={() => setFilter('all')}
+                            className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-success' : 'bg-base-300 hover:bg-success'}`}
+                        >
+                            All Projects
                         </div>
                     </div>
 
@@ -195,7 +199,7 @@ const Home = () => {
                         </div>
                     </div>
 
-                    <div className='bg-base-200 w-full h-3/5 overflow-y-auto rounded-2xl p-4'>
+                    <div className='bg-base-200 w-full h-8/11 overflow-y-auto rounded-2xl p-4'>
                         {filteredProjects.length === 0 ? (
                             <div className='text-center py-10'>No projects found</div>
                         ) : (
@@ -206,7 +210,7 @@ const Home = () => {
                                         className={`card ${getStatusColor(project.status)} text-base-content shadow-xl hover:shadow-2xl transition-shadow`}
                                     >
                                         <div className='card-body relative'>
-                                            <div className='absolute top-0 left-0 w-full h-full' onClick={()=>goToProject(project.id)}></div>
+                                            <div className='absolute top-0 left-0 w-full h-full' onClick={() => goToProject(project.id)}></div>
                                             <div className='flex justify-between items-start'>
                                                 <div>
                                                     <h3 className='card-title'>{project.name}</h3>
@@ -318,16 +322,16 @@ const Home = () => {
                     <div className="modal-box">
                         <h3 className="font-bold text-lg">Share Project</h3>
                         <p className="py-4">Share "{currentShareProject?.name}" with:</p>
-                        
-                        <select 
+
+                        <select
                             className="select select-bordered w-full"
                             value={selectedUserToShare}
                             onChange={(e) => setSelectedUserToShare(e.target.value)}
                         >
                             <option value="">Select a user</option>
                             {allUsers
-                                .filter(user => 
-                                    user.id !== currentUser?.id && 
+                                .filter(user =>
+                                    user.id !== currentUser?.id &&
                                     !currentShareProject?.sharedWith?.includes(user.id)
                                 )
                                 .map(user => (
@@ -337,7 +341,7 @@ const Home = () => {
                                 ))
                             }
                         </select>
-                        
+
                         {currentShareProject?.sharedWith?.length > 0 && (
                             <div className="mt-4">
                                 <h4 className="font-bold">Currently shared with:</h4>
@@ -347,7 +351,7 @@ const Home = () => {
                                         return (
                                             <li key={userId} className="flex justify-between items-center py-1">
                                                 {user?.username || userId}
-                                                <button 
+                                                <button
                                                     className="btn btn-xs btn-error"
                                                     onClick={() => removeSharedUser(currentShareProject.id, userId)}
                                                 >
@@ -359,11 +363,11 @@ const Home = () => {
                                 </ul>
                             </div>
                         )}
-                        
+
                         <div className="modal-action">
                             <button className="btn" onClick={() => setShareModalOpen(false)}>Cancel</button>
-                            <button 
-                                className="btn btn-primary" 
+                            <button
+                                className="btn btn-primary"
                                 onClick={confirmShareProject}
                                 disabled={!selectedUserToShare}
                             >
