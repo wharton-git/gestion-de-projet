@@ -4,7 +4,7 @@ export const registerUser = async (user) => {
     const res = await fetch(`${API_URL}/users?username=${user.username}`)
     const existing = await res.json()
     if (existing.length > 0) {
-        throw new Error('Utilisateur déjà existant')
+        throw new Error('Username already exists')
     }
 
     const response = await fetch(`${API_URL}/users`, {
@@ -18,7 +18,7 @@ export const registerUser = async (user) => {
 export const loginUser = async ({ username, password }) => {
     const res = await fetch(`${API_URL}/users?username=${username}&password=${password}`)
     const users = await res.json()
-    if (users.length === 0) throw new Error('Identifiants incorrects')
+    if (users.length === 0) throw new Error('Invalid credentials')
     return users[0]
 }
 

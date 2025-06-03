@@ -23,30 +23,41 @@ const Login = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-base-200">
-            <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md w-96 space-y-4">
-                <h2 className="text-xl font-bold">Connexion</h2>
-                {error && <p className="text-red-500">{error}</p>}
-                <input
-                    type="text"
-                    placeholder="Nom d'utilisateur"
-                    className="input input-bordered w-full"
+            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-xs border p-4">
+                <legend className="fieldset-legend px-2">Login</legend>
+                
+                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+                
+                <label className="label">Username</label>
+                <input 
+                    type="text" 
+                    className="input input-bordered w-full" 
+                    placeholder="Username" 
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
                 />
-                <input
-                    type="password"
-                    placeholder="Mot de passe"
-                    className="input input-bordered w-full"
+
+                <label className="label">Password</label>
+                <input 
+                    type="password" 
+                    className="input input-bordered w-full" 
+                    placeholder="Password" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <button className="btn btn-primary w-full">Se connecter</button>
-                <Link to="/register" className="text-sm text-blue-500 hover:underline block text-center">
-                    Créer un compte
-                </Link>
-            </form>
+
+                <button type="submit" className="btn btn-neutral mt-4 w-full" onClick={handleLogin}>
+                    Login
+                </button>
+
+                <div className="text-center mt-4">
+                    <Link to="/register" className="text-sm text-blue-500 hover:underline">
+                        Create an account
+                    </Link>
+                </div>
+            </fieldset>
         </div>
     )
 }

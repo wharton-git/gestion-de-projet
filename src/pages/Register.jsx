@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { registerUser } from './../services/api'
 
 const Register = () => {
@@ -20,27 +20,41 @@ const Register = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-base-200">
-            <form onSubmit={handleRegister} className="bg-white p-6 rounded shadow-md w-96 space-y-4">
-                <h2 className="text-xl font-bold">Créer un compte</h2>
-                {error && <p className="text-red-500">{error}</p>}
+            <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-xs border p-4">
+                <legend className="fieldset-legend px-2">Register</legend>
+
+                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
+                <label className="label">Username</label>
                 <input
                     type="text"
-                    placeholder="Nom d'utilisateur"
                     className="input input-bordered w-full"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
                 />
+
+                <label className="label">Password</label>
                 <input
                     type="password"
-                    placeholder="Mot de passe"
                     className="input input-bordered w-full"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <button className="btn btn-primary w-full">S’inscrire</button>
-            </form>
+
+                <button type="submit" className="btn btn-neutral mt-4 w-full" onClick={handleRegister}>
+                    Register
+                </button>
+
+                <div className="text-center mt-4">
+                    <Link to="/login" className="text-sm text-blue-500 hover:underline">
+                        Already have an account? Login
+                    </Link>
+                </div>
+            </fieldset>
         </div>
     )
 }
