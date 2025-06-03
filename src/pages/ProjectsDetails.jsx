@@ -45,6 +45,11 @@ const ProjectsDetails = () => {
     const handleCreateTask = () => {
         if (!newTask.title.trim()) return;
 
+        // Trouver les nouveaux utilisateurs assignés
+        const newAssignments = editingTask
+            ? newTask.assignedTo.filter(userId => !editingTask.assignedTo.includes(userId))
+            : newTask.assignedTo;
+
         if (editingTask) {
             const updatedTasks = tasks.map(task =>
                 task.id === editingTask.id ? { ...newTask, id: editingTask.id } : task
@@ -59,6 +64,27 @@ const ProjectsDetails = () => {
                 createdBy: currentUser.id
             };
             setTasks([...tasks, task]);
+        }
+
+        // Créer des notifications pour les nouveaux assignés
+        if (newAssignments.length > 0) {
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            const projectName = project.name;
+
+            newAssignments.forEach(userId => {
+                notifications.push({
+                    id: Date.now(),
+                    userId,
+                    type: 'task_assigned',
+                    message: `You've been assigned to task "${newTask.title}" in project "${projectName}"`,
+                    projectId: id,
+                    taskId: editingTask ? editingTask.id : Date.now(),
+                    read: false,
+                    createdAt: new Date().toISOString()
+                });
+            });
+
+            localStorage.setItem('notifications', JSON.stringify(notifications));
         }
 
         resetTaskForm();
