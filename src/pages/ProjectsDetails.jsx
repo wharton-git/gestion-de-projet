@@ -1,6 +1,6 @@
-import { FilePenLine, FilePlus2, Trash2 } from 'lucide-react';
+import { FilePenLine, FilePlus2, Trash2, Search, ArrowLeft } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ProjectsDetails = () => {
     const { id } = useParams();
@@ -18,9 +18,11 @@ const ProjectsDetails = () => {
     });
     const [filterPriority, setFilterPriority] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
     const [taskModalOpen, setTaskModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
-    const [expandedTaskId, setExpandedTaskId] = useState(null); // corrigé
+    const [expandedTaskId, setExpandedTaskId] = useState(null);
+    const navigate = useNavigate()
 
     const project = projects.find(p => p.id === parseInt(id));
     const projectUsers = [
@@ -108,7 +110,11 @@ const ProjectsDetails = () => {
     const filteredTasks = tasks.filter(task => {
         const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
         const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
-        return matchesPriority && matchesStatus;
+        const matchesSearch = searchTerm === '' ||
+            task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            task.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchesPriority && matchesStatus && matchesSearch;
     });
 
     const getPriorityColor = (priority) => {
@@ -133,47 +139,83 @@ const ProjectsDetails = () => {
         setExpandedTaskId(prev => (prev === taskId ? null : taskId));
     };
 
+    const returnTo = () => {
+        navigate("/")
+    }
+
     if (!project) return <div className="w-screen h-screen pt-20 flex justify-center items-center">Project not found</div>;
 
     return (
         <div className='w-screen h-screen p-10'>
             <div className='flex justify-between items-center mb-6'>
-                <h1 className='text-2xl font-bold'>{project.name}</h1>
-                <button
-                    className='btn btn-primary'
-                    onClick={() => {
-                        resetTaskForm();
-                        setEditingTask(null);
-                        setTaskModalOpen(true);
-                    }}
-                >
-                    <FilePlus2 />
-                    <span>Create Task</span>
-                </button>
+                <div className='btn btn-ghost' onClick={returnTo}>
+                    <ArrowLeft />
+                </div>
+                <div className='w-2/4'>
+                    <span className='text-sm text-base-300'>Project</span>
+                    <h1 className='text-4xl font-bold'>{project.name}</h1>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <button
+                        className='btn btn-primary'
+                        onClick={() => {
+                            resetTaskForm();
+                            setEditingTask(null);
+                            setTaskModalOpen(true);
+                        }}
+                    >
+                        <FilePlus2 />
+                        <span>Create Task</span>
+                    </button>
+                </div>
             </div>
 
-            <div className='flex gap-4 mb-6'>
-                <select
-                    className='select select-bordered'
-                    value={filterPriority}
-                    onChange={(e) => setFilterPriority(e.target.value)}
-                >
-                    <option value='all'>All Priorities</option>
-                    <option value='high'>High</option>
-                    <option value='medium'>Medium</option>
-                    <option value='low'>Low</option>
-                </select>
+            <div className='flex justify-between gap-4 mb-6'>
+                <div className='flex gap-4 w-2/5'>
+                    <select
+                        className='select select-bordered'
+                        value={filterPriority}
+                        onChange={(e) => setFilterPriority(e.target.value)}
+                    >
+                        <option value='all'>All Priorities</option>
+                        <option value='high'>High</option>
+                        <option value='medium'>Medium</option>
+                        <option value='low'>Low</option>
+                    </select>
 
-                <select
-                    className='select select-bordered'
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                    <option value='all'>All Statuses</option>
-                    <option value='in progress'>In Progress</option>
-                    <option value='on hold'>On Hold</option>
-                    <option value='completed'>Completed</option>
-                </select>
+                    <select
+                        className='select select-bordered'
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                        <option value='all'>All Statuses</option>
+                        <option value='in progress'>In Progress</option>
+                        <option value='on hold'>On Hold</option>
+                        <option value='completed'>Completed</option>
+                    </select>
+                </div>
+                <div className='input'>
+                    <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <g
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                            strokeWidth="2.5"
+                            fill="none"
+                            stroke="currentColor"
+                        >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </g>
+                    </svg>
+                    <input
+                        type='text'
+                        placeholder='Search...'
+                        className='grow'
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             <div className='h-3/4 overflow-y-scroll'>
@@ -221,7 +263,6 @@ const ProjectsDetails = () => {
                                             </div>
 
                                             <div className='flex justify-between items-center mt-4'>
-
                                                 <span className='text-sm opacity-70'>
                                                     {new Date(task.createdAt).toLocaleDateString()}
                                                 </span>

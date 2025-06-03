@@ -18,7 +18,7 @@ const Navbar = () => {
             </div>
             {user && (
                 <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500">Bonjour, {user.username}</span>
+                    <span className="text-sm text-gray-500"> {user.username}</span>
                     <button className="btn btn-outline btn-error btn-sm" onClick={handleLogout}>
                         Logout
                     </button>
