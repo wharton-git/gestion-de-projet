@@ -26,7 +26,6 @@ function App() {
           path="/project/:id"
           element={
             <ProtectedRoute>
-              <Navbar />
               <ProjectsDetails />
             </ProtectedRoute>
           }
