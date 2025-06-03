@@ -1,3 +1,4 @@
+import { FilePenLine, FilePlus2, Trash2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -119,12 +120,12 @@ const ProjectsDetails = () => {
         }
     };
 
-    const getStatusColor = (status) => {
+    const getStatusbBadgeColor = (status) => {
         switch (status) {
-            case 'in progress': return 'bg-accent';
-            case 'on hold': return 'bg-warning';
-            case 'completed': return 'bg-success';
-            default: return 'bg-base-300';
+            case 'in progress': return 'badge-accent';
+            case 'on hold': return 'badge-warning';
+            case 'completed': return 'badge-success';
+            default: return 'badge-base-300';
         }
     };
 
@@ -146,7 +147,8 @@ const ProjectsDetails = () => {
                         setTaskModalOpen(true);
                     }}
                 >
-                    Create Task
+                    <FilePlus2 />
+                    <span>Create Task</span>
                 </button>
             </div>
 
@@ -181,30 +183,30 @@ const ProjectsDetails = () => {
                     filteredTasks.map(task => {
                         const isExpanded = expandedTaskId === task.id;
                         return (
-                            <div key={task.id} className={`${getStatusColor(task.status)} shadow-xl relative inline-block align-top w-1/5 box-border rounded-2xl transition-all duration-300`}>
+                            <div key={task.id} className={`bg-base-100 text-left shadow-xl relative inline-block align-top w-1/5 box-border rounded-2xl transition-all duration-300`}>
                                 <div
                                     onClick={() => toggleExpand(task.id)}
-                                    className={`cursor-pointer p-4 ${isExpanded ? "h-96" : "h-20 "} max-h-56 overflow-hidden transition-all`}
+                                    className={`cursor-pointer px-4 py-2 ${isExpanded ? "h-96" : "h-20 "} max-h-56 overflow-hidden transition-all`}
                                 >
                                     <div className="font-semibold">
-                                        <h3 className='card-title'>{task.title}</h3>
-                                        <div className='space-x-4'>
+                                        <h3 className='text-left pt-1 pb-2 text-lg'>{task.title}</h3>
+                                        <div className='flex gap-2 items-center'>
                                             {task.status === 'in progress' && (
                                                 <span className={`badge ${getPriorityColor(task.priority)}`}>
                                                     {task.priority}
                                                 </span>
                                             )}
-                                            <span className={`badge ${getPriorityColor(task.status)}`}>
+                                            <span className={`badge ${getStatusbBadgeColor(task.status)}`}>
                                                 {task.status}
                                             </span>
                                         </div>
                                     </div>
 
                                     {isExpanded && (
-                                        <div className="text-sm mt-4">
-                                            <p>{task.description}</p>
+                                        <div className="text-sm m-2">
+                                            <p className='text-gray-500'>{task.description}</p>
 
-                                            <div className='mt-4'>
+                                            <div className='mt-2'>
                                                 <h4 className='font-bold text-sm mb-1'>Assigned to:</h4>
                                                 <div className='flex flex-wrap gap-1'>
                                                     {task.assignedTo.map(userId => {
@@ -235,11 +237,11 @@ const ProjectsDetails = () => {
                                         </svg>
                                     </div>
                                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                        <li><button onClick={() => handleEditTask(task)}>Edit</button></li>
-                                        <li><button onClick={() => handleDeleteTask(task.id)}>Delete</button></li>
-                                        <li><button onClick={() => updateTaskStatus(task.id, 'in progress')}>Mark "In Progress"</button></li>
-                                        <li><button onClick={() => updateTaskStatus(task.id, 'on hold')}>Mark "On Hold"</button></li>
-                                        <li><button onClick={() => updateTaskStatus(task.id, 'completed')}>Mark "Completed"</button></li>
+                                        <li><button onClick={() => handleEditTask(task)} className='flex items-center justify-between' ><span>Edit</span><FilePenLine /></button></li>
+                                        <li><button onClick={() => handleDeleteTask(task.id)} className='flex items-center justify-between' ><span>Delete</span> <Trash2 /></button></li>
+                                        <li><button onClick={() => updateTaskStatus(task.id, 'in progress')}>Mark <span className={`badge badge-soft badge-accent`}>in Progress</span></button></li>
+                                        <li><button onClick={() => updateTaskStatus(task.id, 'on hold')}>Mark <span className={`badge badge-soft badge-warning`}>on Hold</span></button></li>
+                                        <li><button onClick={() => updateTaskStatus(task.id, 'completed')}>Mark <span className={`badge badge-soft badge-success`}>Completed</span></button></li>
                                     </ul>
                                 </div>
                             </div>

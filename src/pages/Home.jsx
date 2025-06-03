@@ -1,3 +1,4 @@
+import { FilePenLine, LayoutList, Plus, Trash2, UserRoundPlus } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -158,7 +159,7 @@ const Home = () => {
                             }}
                             className='w-2/5 h-20 flex items-center justify-center rounded-2xl bg-base-300 hover:bg-primary transition-all cursor-pointer'
                         >
-                            {editingProject ? 'Edit Project' : 'Create Project'}
+                            <Plus /><span> Create Project</span>
                         </div>
                         <div
                             onClick={() => setFilter('in progress')}
@@ -180,19 +181,31 @@ const Home = () => {
                         </div>
                         <div
                             onClick={() => setFilter('all')}
-                            className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-success' : 'bg-base-300 hover:bg-success'}`}
+                            className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-primary' : 'bg-base-300 hover:bg-primary'}`}
                         >
-                            All Projects
+                            <LayoutList /><span> All Projects</span>
                         </div>
                     </div>
 
                     <div className='flex justify-between items-center'>
                         <h2 className='text-xl font-bold'>Project List</h2>
-                        <div className='form-control'>
+                        <div className='input'>
+                            <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g
+                                    strokeLinejoin="round"
+                                    strokeLinecap="round"
+                                    strokeWidth="2.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                >
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.3-4.3"></path>
+                                </g>
+                            </svg>
                             <input
                                 type='text'
                                 placeholder='Search...'
-                                className='input input-bordered'
+                                className='grow'
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -225,14 +238,14 @@ const Home = () => {
                                                         </svg>
                                                     </div>
                                                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                                        <li><button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }}>Edit</button></li>
-                                                        <li><button onClick={(e) => { e.stopPropagation(); handleShareProject(project); }}>Share</button></li>
+                                                        <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); handleEditProject(project); }}> <span>Edit</span><FilePenLine /></button></li>
+                                                        <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); handleShareProject(project); }}> <span>Add contributor</span><UserRoundPlus /></button></li>
                                                         {project.ownerId === currentUser?.id && (
                                                             <>
-                                                                <li><button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(project.id); }}>Delete</button></li>
-                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'in progress'); }}>Mark "In Progress"</button></li>
-                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'on hold'); }}>Mark "On Hold"</button></li>
-                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'completed'); }}>Mark "Completed"</button></li>
+                                                                <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); setDeleteConfirm(project.id); }}> <span>Delete</span> <Trash2 /> </button></li>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'in progress'); }}>Mark <span className={`badge badge-soft badge-accent`}>in Progress</span></button></li>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'on hold'); }}>Mark <span className={`badge badge-soft badge-warning`}>on Hold</span></button></li>
+                                                                <li><button onClick={(e) => { e.stopPropagation(); updateProjectStatus(project.id, 'completed'); }}>Mark <span className={`badge badge-soft badge-success`}>Completed</span></button></li>
                                                             </>
                                                         )}
                                                     </ul>
