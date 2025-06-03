@@ -176,33 +176,33 @@ const ProjectsDetails = () => {
                 </select>
             </div>
 
-            <div className='space-x-3 space-y-3 text-center bg-base-200 p-2 rounded-2xl h-3/4 overflow-y-scroll'>
-                {filteredTasks.length === 0 ? (
-                    <div className='col-span-full text-center py-10'>No tasks found</div>
-                ) : (
-                    filteredTasks.map(task => {
-                        const isExpanded = expandedTaskId === task.id;
-                        return (
-                            <div key={task.id} className={`bg-base-100 text-left shadow-xl relative inline-block align-top w-1/5 box-border rounded-2xl transition-all duration-300`}>
-                                <div
-                                    onClick={() => toggleExpand(task.id)}
-                                    className={`cursor-pointer px-4 py-2 ${isExpanded ? "h-96" : "h-20 "} max-h-56 overflow-hidden transition-all`}
-                                >
-                                    <div className="font-semibold">
-                                        <h3 className='text-left pt-1 pb-2 text-lg'>{task.title}</h3>
-                                        <div className='flex gap-2 items-center'>
-                                            {task.status === 'in progress' && (
-                                                <span className={`badge ${getPriorityColor(task.priority)}`}>
-                                                    {task.priority}
+            <div className='h-3/4 overflow-y-scroll'>
+                <div className='grid gap-3 grid-cols-4 bg-base-200 p-2 rounded-2xl '>
+                    {filteredTasks.length === 0 ? (
+                        <div className='col-span-full text-center py-10'>No tasks found</div>
+                    ) : (
+                        filteredTasks.map(task => {
+                            const isExpanded = expandedTaskId === task.id;
+                            return (
+                                <div key={task.id} className={`bg-base-100 text-left shadow-xl  ${isExpanded ? "h-96" : "h-20 "} max-h-56 relative rounded-2xl transition-all duration-300`}>
+                                    <div
+                                        onClick={() => toggleExpand(task.id)}
+                                        className={`cursor-pointer px-4 py-2  ${isExpanded ? "h-96" : "h-20 "}  overflow-hidden max-h-56 transition-all`}
+                                    >
+                                        <div className="font-semibold">
+                                            <h3 className='text-left pt-1 pb-2 text-lg'>{task.title}</h3>
+                                            <div className='flex gap-2 items-center'>
+                                                {task.status === 'in progress' && (
+                                                    <span className={`badge ${getPriorityColor(task.priority)}`}>
+                                                        {task.priority}
+                                                    </span>
+                                                )}
+                                                <span className={`badge ${getStatusbBadgeColor(task.status)}`}>
+                                                    {task.status}
                                                 </span>
-                                            )}
-                                            <span className={`badge ${getStatusbBadgeColor(task.status)}`}>
-                                                {task.status}
-                                            </span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {isExpanded && (
                                         <div className="text-sm m-2">
                                             <p className='text-gray-500'>{task.description}</p>
 
@@ -227,27 +227,27 @@ const ProjectsDetails = () => {
                                                 </span>
                                             </div>
                                         </div>
-                                    )}
-                                </div>
-
-                                <div className='absolute top-0 right-0 dropdown dropdown-end p-2'>
-                                    <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
                                     </div>
-                                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                        <li><button onClick={() => handleEditTask(task)} className='flex items-center justify-between' ><span>Edit</span><FilePenLine /></button></li>
-                                        <li><button onClick={() => handleDeleteTask(task.id)} className='flex items-center justify-between' ><span>Delete</span> <Trash2 /></button></li>
-                                        <li><button onClick={() => updateTaskStatus(task.id, 'in progress')}>Mark <span className={`badge badge-soft badge-accent`}>in Progress</span></button></li>
-                                        <li><button onClick={() => updateTaskStatus(task.id, 'on hold')}>Mark <span className={`badge badge-soft badge-warning`}>on Hold</span></button></li>
-                                        <li><button onClick={() => updateTaskStatus(task.id, 'completed')}>Mark <span className={`badge badge-soft badge-success`}>Completed</span></button></li>
-                                    </ul>
+
+                                    <div className='absolute top-0 right-0 dropdown dropdown-end p-2'>
+                                        <div tabIndex={0} role='button' className='btn btn-sm btn-ghost'>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                            </svg>
+                                        </div>
+                                        <ul tabIndex={0} className="dropdown-content z-[1] border border-base-200 menu p-2 shadow bg-base-100 rounded-box w-52">
+                                            <li><button onClick={() => handleEditTask(task)} className='flex items-center justify-between' ><span>Edit</span><FilePenLine /></button></li>
+                                            <li><button onClick={() => handleDeleteTask(task.id)} className='flex items-center justify-between' ><span>Delete</span> <Trash2 /></button></li>
+                                            <li><button onClick={() => updateTaskStatus(task.id, 'in progress')}>Mark <span className={`badge badge-soft badge-accent`}>in Progress</span></button></li>
+                                            <li><button onClick={() => updateTaskStatus(task.id, 'on hold')}>Mark <span className={`badge badge-soft badge-warning`}>on Hold</span></button></li>
+                                            <li><button onClick={() => updateTaskStatus(task.id, 'completed')}>Mark <span className={`badge badge-soft badge-success`}>Completed</span></button></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })
-                )}
+                            );
+                        })
+                    )}
+                </div>
             </div>
 
             {/* Task Modal */}
