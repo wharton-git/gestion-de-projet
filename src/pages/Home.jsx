@@ -133,10 +133,10 @@ const Home = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'in progress': return 'bg-accent';
-            case 'on hold': return 'bg-warning';
-            case 'completed': return 'bg-success';
-            default: return 'bg-base-300';
+            case 'in progress': return 'badge-accent';
+            case 'on hold': return 'badge-warning';
+            case 'completed': return 'badge-success';
+            default: return 'badge-base-300';
         }
     };
 
@@ -207,7 +207,7 @@ const Home = () => {
                                 {filteredProjects.map(project => (
                                     <div
                                         key={project.id}
-                                        className={`card ${getStatusColor(project.status)} text-base-content shadow-xl hover:shadow-2xl transition-shadow`}
+                                        className={`card bg-base-100 text-base-content shadow-xl hover:shadow-2xl transition-shadow`}
                                     >
                                         <div className='card-body relative'>
                                             <div className='absolute top-0 left-0 w-full h-full' onClick={() => goToProject(project.id)}></div>
@@ -238,17 +238,9 @@ const Home = () => {
                                                     </ul>
                                                 </div>
                                             </div>
-                                            <p>{project.description}</p>
+                                            <p className='text-gray-500'>{project.description}</p>
                                             <div className='flex justify-between items-center mt-4'>
-                                                <select
-                                                    className='select select-bordered select-sm'
-                                                    value={project.status}
-                                                    onChange={(e) => updateProjectStatus(project.id, e.target.value)}
-                                                >
-                                                    <option value='in progress'>In Progress</option>
-                                                    <option value='on hold'>On Hold</option>
-                                                    <option value='completed'>Completed</option>
-                                                </select>
+                                                <div className={`badge badge-soft ${getStatusColor(project.status)}`}>{project.status}</div>
                                                 <span className='text-sm opacity-70'>
                                                     {new Date(project.createdAt).toLocaleDateString()}
                                                 </span>
