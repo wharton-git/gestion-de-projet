@@ -1,32 +1,37 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
 import Navbar from './components/UI/Navbar'
-
-// Créez une route privée
-const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth()
-  return isAuthenticated ? children : <Navigate to="/login" />
-}
+import Login from './pages/Login'
+import ProtectedRoute from './components/ProtectedRoute'
+import Register from './pages/Register'
+import ProjectsDetails from './pages/ProjectsDetails'
 
 function App() {
+
   return (
-    <AuthProvider>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={
-            <PrivateRoute>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Navbar />
               <Home />
-            </PrivateRoute>
-          } />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:id"
+          element={
+            <ProtectedRoute>
+              <ProjectsDetails />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   )
 }
 
