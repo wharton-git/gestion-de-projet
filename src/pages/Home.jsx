@@ -22,6 +22,7 @@ const Home = () => {
         const user = JSON.parse(localStorage.getItem('user'));
         setCurrentUser(user);
         setAllProjects(savedProjects);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -157,7 +158,7 @@ const Home = () => {
                                 setEditingProject(null);
                                 document.getElementById('projectModal').showModal();
                             }}
-                            className='w-2/5 h-20 flex items-center justify-center rounded-2xl bg-base-300 hover:bg-primary transition-all cursor-pointer'
+                            className='w-2/5 h-20 gap-4 flex items-center justify-center rounded-2xl bg-base-300 hover:bg-primary transition-all cursor-pointer'
                         >
                             <Plus /><span> Create Project</span>
                         </div>
@@ -181,7 +182,7 @@ const Home = () => {
                         </div>
                         <div
                             onClick={() => setFilter('all')}
-                            className={`w-2/5 h-20 flex items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-primary' : 'bg-base-300 hover:bg-primary'}`}
+                            className={`w-2/5 h-20 flex gap-4 items-center justify-center rounded-2xl transition-all cursor-pointer ${filter === 'completed' ? 'bg-primary' : 'bg-base-300 hover:bg-primary'}`}
                         >
                             <LayoutList /><span> All Projects</span>
                         </div>

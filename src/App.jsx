@@ -1,12 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
 import Home from './pages/Home'
 import Navbar from './components/UI/Navbar'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import Register from './pages/Register'
 import ProjectsDetails from './pages/ProjectsDetails'
+import Setting from './pages/Setting'
 
 function App() {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('themeConf') || 'light'
+    document.documentElement.setAttribute('data-theme', savedTheme)
+  }, [])
 
   return (
     <Router>
@@ -27,6 +33,15 @@ function App() {
           element={
             <ProtectedRoute>
               <ProjectsDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/setting"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <Setting />
             </ProtectedRoute>
           }
         />
