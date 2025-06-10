@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { loginUser, allUser } from './../services/api'
+import { loginUser, getCurrentUser } from './../services/api'
 
 const Login = () => {
-    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
@@ -11,10 +11,12 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault()
         try {
-            const user = await loginUser({ username, password })
-            const users = await allUser()
+            const { token } = await loginUser({ email, password })
+            const user = await getCurrentUser(token)
+            
+            localStorage.setItem('token', token)
             localStorage.setItem('user', JSON.stringify(user))
-            localStorage.setItem('allUser', JSON.stringify(users))
+            
             navigate('/')
         } catch (err) {
             setError(err.message)
@@ -28,13 +30,13 @@ const Login = () => {
                 
                 {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                 
-                <label className="label">Username</label>
+                <label className="label">Email</label>
                 <input 
-                    type="text" 
+                    type="email" 
                     className="input input-bordered w-full" 
-                    placeholder="Username" 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
 

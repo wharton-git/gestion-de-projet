@@ -4,6 +4,7 @@ import { registerUser } from './../services/api'
 
 const Register = () => {
     const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
@@ -11,7 +12,7 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault()
         try {
-            await registerUser({ username, password })
+            await registerUser({ username, email, password })
             navigate('/login')
         } catch (err) {
             setError(err.message)
@@ -32,6 +33,16 @@ const Register = () => {
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
+
+                <label className="label">Email</label>
+                <input
+                    type="email"
+                    className="input input-bordered w-full"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
 

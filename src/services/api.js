@@ -1,28 +1,51 @@
-const API_URL = 'http://localhost:3001'
+const API_URL = 'http://localhost:3001/api'
 
 export const registerUser = async (user) => {
-    const res = await fetch(`${API_URL}/users?username=${user.username}`)
-    const existing = await res.json()
-    if (existing.length > 0) {
-        throw new Error('Username already exists')
-    }
-
-    const response = await fetch(`${API_URL}/users`, {
+    const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user),
     })
-    return response.json()
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Registration failed')
+    }
+
+    return data
 }
 
-export const loginUser = async ({ username, password }) => {
-    const res = await fetch(`${API_URL}/users?username=${username}&password=${password}`)
-    const users = await res.json()
-    if (users.length === 0) throw new Error('Invalid credentials')
-    return users[0]
+export const loginUser = async ({ email, password }) => {
+    const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Login failed')
+    }
+
+    return data
 }
 
-export const allUser = async () => {
-    const users = await fetch(`${API_URL}/users`)
-    return users.json()
+export const getCurrentUser = async (token) => {
+    const response = await fetch(`${API_URL}/users/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch user')
+    }
+
+    return data
 }
