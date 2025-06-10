@@ -49,3 +49,70 @@ export const getCurrentUser = async (token) => {
 
     return data
 }
+
+export const getAllUsers = async (token) => {
+    const response = await fetch(`${API_URL}/users`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to fetch users');
+    return data;
+};
+
+export const getAllProjects = async (token) => {
+    const response = await fetch(`${API_URL}/projects`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to fetch projects');
+    return data;
+};
+
+export const createProject = async (project, token) => {
+    const response = await fetch(`${API_URL}/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(project)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to create project');
+    return data;
+};
+
+export const updateProject = async (id, updates, token) => {
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(updates)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to update project');
+    return data;
+};
+
+export const deleteProject = async (id, token) => {
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to delete project');
+};
+
+export const addCollaborator = async (projectId, userId, token) => {
+    const response = await fetch(`${API_URL}/projects/collaborators`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ projectId, userId })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Failed to add collaborator');
+    return data;
+};
+
+export const removeCollaborator = async (projectId, userId, token) => {
+    const response = await fetch(`${API_URL}/projects/collaborators/${projectId}/${userId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to remove collaborator');
+};
