@@ -147,6 +147,22 @@ const Home = () => {
         }
     };
 
+    const getStat = (tasksKey) => {
+        const tasks = JSON.parse(localStorage.getItem(tasksKey)) || [];
+        var total = tasks.length;
+        var done = tasks.filter(task => task.status === 'completed').length;
+        var inProgress = tasks.filter(task => task.status === 'in progress').length;
+        var onHold = tasks.filter(task => task.status === 'on hold').length;
+
+        const stat = {
+            total: total,
+            done: done,
+            inProgress: inProgress,
+            onHold: onHold
+        };
+        return stat;
+    }
+
     const goToProject = (id) => {
         navigate(`/project/${id}`);
     };
@@ -257,6 +273,19 @@ const Home = () => {
                                                     </ul>
                                                 </div>
                                             </div>
+
+                                            <div className='absolute right-20 space-x-3'>
+                                                <span className='badge badge-dash badge-accent'>
+                                                    {getStat("tasks_" + project.id).done} / {getStat("tasks_" + project.id).total}
+                                                </span>
+                                                <div className="radial-progress" style={{ "--value": getStat("tasks_" + project.id).done / getStat("tasks_" + project.id).total * 100 || 0 }}
+                                                    aria-valuenow={getStat("tasks_" + project.id).done / getStat("tasks_" + project.id).total * 100 || 0}
+                                                    role="progressbar"
+                                                >
+                                                    {getStat("tasks_" + project.id).done / getStat("tasks_" + project.id).total * 100 || 0}%
+                                                </div>
+                                            </div>
+
                                             <p className='text-gray-500'>{project.description}</p>
                                             <div className='flex justify-between items-center mt-4'>
                                                 <div className={`badge badge-soft ${getStatusColor(project.status)}`}>{project.status}</div>
