@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api'
+const API_URL = 'http://localhost:3000/api'
 
 export const registerUser = async (user) => {
     const response = await fetch(`${API_URL}/auth/register`, {
@@ -67,6 +67,12 @@ export const getAllProjects = async (token) => {
     if (!response.ok) throw new Error(data.message || 'Failed to fetch projects');
     return data;
 };
+
+export const getAllProjectsByOwner = async (ownerId, token) => {
+    const allProjects = await getAllProjects(token);
+    const projectsArray = Array.isArray(allProjects) ? allProjects : allProjects.projects || [];
+    return projectsArray.filter(project => project.ownerId === ownerId);
+}
 
 export const createProject = async (project, token) => {
     const response = await fetch(`${API_URL}/projects`, {
