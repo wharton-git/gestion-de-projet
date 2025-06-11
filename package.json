@@ -17,6 +17,7 @@
     "json-server": "^1.0.0-beta.3",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",
+    "react-autocomplete": "^1.8.1",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1",
     "tailwindcss": "^4.1.8"

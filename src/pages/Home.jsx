@@ -2,6 +2,7 @@ import { FilePenLine, LayoutList, Plus, Trash2, UserRoundPlus } from 'lucide-rea
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 const Home = () => {
     const navigate = useNavigate();
     const savedProjects = JSON.parse(localStorage.getItem('projects')) || [];
@@ -17,12 +18,14 @@ const Home = () => {
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [currentShareProject, setCurrentShareProject] = useState(null);
     const [selectedUserToShare, setSelectedUserToShare] = useState('');
+    const [selectedUserToShareInput, setSelectedUserToShareInput] = useState('');
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
         setCurrentUser(user);
         setAllProjects(savedProjects);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -94,6 +97,8 @@ const Home = () => {
         setAllProjects(updatedProjects);
         setShareModalOpen(false);
         setSelectedUserToShare('');
+        setSelectedUserToShareInput('');
+        setShowSuggestions(false);
         setCurrentShareProject(null);
     };
 
@@ -240,7 +245,7 @@ const Home = () => {
                                                     </div>
                                                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                                                         <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); handleEditProject(project); }}> <span>Edit</span><FilePenLine /></button></li>
-                                                        <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); handleShareProject(project); }}> <span>Add contributor</span><UserRoundPlus /></button></li>
+                                                        <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); handleShareProject(project); }}> <span>Contributor</span><UserRoundPlus /></button></li>
                                                         {project.ownerId === currentUser?.id && (
                                                             <>
                                                                 <li><button className='flex justify-between items-center' onClick={(e) => { e.stopPropagation(); setDeleteConfirm(project.id); }}> <span>Delete</span> <Trash2 /> </button></li>
@@ -329,24 +334,48 @@ const Home = () => {
                         <h3 className="font-bold text-lg">Share Project</h3>
                         <p className="py-4">Share "{currentShareProject?.name}" with:</p>
 
-                        <select
-                            className="select select-bordered w-full"
-                            value={selectedUserToShare}
-                            onChange={(e) => setSelectedUserToShare(e.target.value)}
-                        >
-                            <option value="">Select a user</option>
-                            {allUsers
-                                .filter(user =>
-                                    user.id !== currentUser?.id &&
-                                    !currentShareProject?.sharedWith?.includes(user.id)
-                                )
-                                .map(user => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.username}
-                                    </option>
-                                ))
-                            }
-                        </select>
+                        <div className="form-control w-full relative">
+                            <label className="label">
+                                <span className="label-text">Share with user</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Type username..."
+                                className="input input-bordered w-full"
+                                value={selectedUserToShareInput}
+                                onChange={(e) => {
+                                    setSelectedUserToShareInput(e.target.value);
+                                    setShowSuggestions(e.target.value.length > 0);
+                                }}
+                                onFocus={() => selectedUserToShareInput && setShowSuggestions(true)}
+                            />
+                            {showSuggestions && (
+                                <ul className="absolute w-full bg-base-200 menu rounded-2xl mt-1 max-h-60 overflow-y-auto">
+                                    {allUsers
+                                        .filter(user =>
+                                            user.id !== currentUser?.id &&
+                                            !currentShareProject?.sharedWith?.includes(user.id) &&
+                                            user.username.toLowerCase().includes(selectedUserToShareInput.toLowerCase())
+                                        )
+                                        .map(user => (
+                                            <li key={user.id}>
+                                                <button
+                                                    type="button"
+                                                    className="text-left"
+                                                    onClick={() => {
+                                                        setSelectedUserToShare(user.id);
+                                                        setSelectedUserToShareInput(user.username);
+                                                        setShowSuggestions(false);
+                                                    }}
+                                                >
+                                                    {user.username}
+                                                </button>
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                            )}
+                        </div>
 
                         {currentShareProject?.sharedWith?.length > 0 && (
                             <div className="mt-4">
@@ -383,6 +412,7 @@ const Home = () => {
                     </div>
                 </dialog>
             )}
+
         </div>
     );
 };
